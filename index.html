@@ -51,9 +51,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the Attendance Registration</h1>
-        <p id="message">Please allow location access to verify your proximity to the office.</p>
-        <a id="form-link" href="https://forms.office.com/r/1eRS2EfD7e" class="btn hidden" target="_blank">Mark Attendance</a>
+        <h1>Attendance Registration</h1>
+        <p id="message">Please allow location access to proceed.</p>
+        <a id="form-link" href="https://forms.office.com/r/1eRS2EfD7e" class="btn hidden" target="_blank">PROCEED</a>
     </div>
 
     <script>
@@ -62,7 +62,7 @@
         const maxDistanceMeters = 50;
 
         function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
+            const R = 6371000; // radius of Earth in meters
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -80,7 +80,7 @@
                     const distance = getDistance(userLat, userLon, officeLat, officeLon);
 
                     if (distance <= maxDistanceMeters) {
-                        document.getElementById('message').innerText = "You are within the attendance area. Click below to mark attendance.";
+                        document.getElementById('message').innerText = "You are within the Attendance area.";
                         document.getElementById('form-link').classList.remove('hidden');
                     } else {
                         document.getElementById('message').innerText = "You are not within the allowed area. Please move closer to the office.";
@@ -88,7 +88,8 @@
                 },
                 function(error) {
                     document.getElementById('message').innerText = "Unable to get your location. Please allow location access.";
-                }
+                },
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
             );
         } else {
             document.getElementById('message').innerText = "Geolocation is not supported by your browser.";
