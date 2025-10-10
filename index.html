@@ -1,1 +1,154 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Attendance Registration</title> <style> body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; display:flex; justify-content:center; align-items:center; height:100vh; text-align:center; } .container { background:white; padding:25px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:90%; max-width:600px; } h1 { color:#333; } p { color:#555; } input { padding:10px; width:80%; margin:8px 0; border-radius:4px; border:1px solid #ccc; } .btn { background:#4CAF50; color:white; padding:12px 25px; border:none; border-radius:5px; cursor:pointer; display:inline-block; margin-top:15px; text-decoration:none; } .btn:hover { background:#45a049; } .hidden { display:none; } </style> </head> <body> <div class="container"> <h1>Attendance Registration</h1> <div id="registration-form"> <p>Please register once to continue:</p> <input type="text" id="student-id" placeholder="Student ID" required><br> <input type="text" id="student-name" placeholder="Full Name" required><br> <button class="btn" onclick="registerStudent()">Register</button> </div> <p id="date-display" class="hidden"></p> <p id="message" class="hidden">Please allow location access to proceed.</p> <a id="form-link" class="btn hidden" target="_blank">PROCEED</a> </div> <script> const officeLat = 24.465868; // your office latitude const officeLon = 54.375422; // your office longitude const maxDistanceMeters = 5000; // 5 km range // Show today's date const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD document.getElementById('date-display').innerText = "Today's Date: " + today; document.getElementById('date-display').classList.remove('hidden'); // Check if student is already registered const storedData = JSON.parse(localStorage.getItem('studentData')); if(storedData){ document.getElementById('registration-form').classList.add('hidden'); startLocationVerification(storedData); } function registerStudent(){ const id = document.getElementById('student-id').value.trim(); const name = document.getElementById('student-name').value.trim(); if(!id || !name){ alert("Please fill in all fields"); return; } const studentData = {id, name}; localStorage.setItem('studentData', JSON.stringify(studentData)); document.getElementById('registration-form').classList.add('hidden'); startLocationVerification(studentData); } function getDistance(lat1, lon1, lat2, lon2){ const R = 6371000; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180; const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2; const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R*c; } function startLocationVerification(studentData){ const messageEl = document.getElementById('message'); const formLinkEl = document.getElementById('form-link'); messageEl.classList.remove('hidden'); if(navigator.geolocation){ navigator.geolocation.getCurrentPosition( function(position){ const userLat = position.coords.latitude; const userLon = position.coords.longitude; const distance = getDistance(userLat, userLon, officeLat, officeLon); if(distance <= maxDistanceMeters){ messageEl.innerText = "You are within the Attendance area."; // Generate prefilled Microsoft Forms URL const formBase = "https://forms.office.com/Pages/ResponsePage.aspx?id=go0NyWGKG0KfjDWri8W8nLDyzzJGlihFvj_UvRAMtoxUNjFJUE03QU0zTjNLVk42NEQ0N0ZSUjkwSS4u"; const prefilledURL = ${formBase}&rb5a3b1867a594be49b4dac3724ffb60f=${encodeURIComponent(studentData.name)}&r5b6925327b93464693dcf63b96c0159a=${encodeURIComponent(studentData.id)}&r7a175eb6f3be41b4af0855ddda20d559=${encodeURIComponent(today)}; formLinkEl.href = prefilledURL; formLinkEl.classList.remove('hidden'); } else { messageEl.innerText = "You are not within the allowed area. Please move closer to the office."; } }, function(error){ messageEl.innerText = "Unable to get your location. Please allow location access."; }, {enableHighAccuracy:false, timeout:5000, maximumAge:10000} ); } else { messageEl.innerText = "Geolocation is not supported by your browser."; } } </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Registration</title>
+<style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; display:flex; justify-content:center; align-items:center; height:100vh; text-align:center; }
+    .container { background:white; padding:25px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:90%; max-width:600px; }
+    h1 { color:#333; }
+    p { color:#555; }
+    input { padding:10px; width:80%; margin:8px 0; border-radius:4px; border:1px solid #ccc; }
+    .btn { background:#4CAF50; color:white; padding:12px 25px; border:none; border-radius:5px; cursor:pointer; display:inline-block; margin-top:15px; text-decoration:none; }
+    .btn:hover { background:#45a049; }
+    .hidden { display:none; }
+
+    /* ✅ Success message styling */
+    .success-box {
+        background-color:#e6f9ed;
+        color:#2e7d32;
+        border:1px solid #a5d6a7;
+        padding:15px;
+        margin-top:20px;
+        border-radius:8px;
+        box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        font-weight:bold;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Attendance Registration</h1>
+
+    <div id="registration-form">
+        <p>Please register once to continue:</p>
+        <input type="text" id="student-id" placeholder="Student ID" required><br>
+        <input type="text" id="student-name" placeholder="Full Name" required><br>
+        <button class="btn" onclick="registerStudent()">Register</button>
+    </div>
+
+    <p id="date-display" class="hidden"></p>
+    <p id="message" class="hidden"></p>
+    <a id="form-link" class="btn hidden" target="_blank">PROCEED</a>
+</div>
+
+<script>
+const officeLat = 24.465868;
+const officeLon = 54.375422;
+const maxDistanceMeters = 5000;
+
+// Show today's date
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('date-display').innerText = "Today's Date: " + today;
+document.getElementById('date-display').classList.remove('hidden');
+
+// Get UAE time
+function getUAETime() {
+    const nowUTC = new Date();
+    const uaeOffset = 4 * 60; // UTC+4
+    return new Date(nowUTC.getTime() + uaeOffset * 60000);
+}
+
+// Reset attendance at 6 AM UAE time
+function checkAndResetAttendance() {
+    const storedDate = localStorage.getItem('lastSubmission');
+    if (!storedDate) return;
+    const now = getUAETime();
+    const todayUAE = now.toISOString().split('T')[0];
+    const resetTime = new Date(`${todayUAE}T06:00:00+04:00`);
+    if (now >= resetTime && storedDate !== todayUAE) {
+        localStorage.removeItem('lastSubmission');
+    }
+}
+checkAndResetAttendance();
+
+const storedData = JSON.parse(localStorage.getItem('studentData'));
+if (storedData) {
+    document.getElementById('registration-form').classList.add('hidden');
+    startLocationVerification(storedData);
+}
+
+function registerStudent(){
+    const id = document.getElementById('student-id').value.trim();
+    const name = document.getElementById('student-name').value.trim();
+    if(!id || !name){ alert("Please fill in all fields"); return; }
+    const studentData = {id, name};
+    localStorage.setItem('studentData', JSON.stringify(studentData));
+    document.getElementById('registration-form').classList.add('hidden');
+    startLocationVerification(studentData);
+}
+
+function getDistance(lat1, lon1, lat2, lon2){
+    const R = 6371000;
+    const dLat = (lat2-lat1)*Math.PI/180;
+    const dLon = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R*c;
+}
+
+function startLocationVerification(studentData){
+    const messageEl = document.getElementById('message');
+    const formLinkEl = document.getElementById('form-link');
+    messageEl.classList.remove('hidden');
+    messageEl.classList.remove('success-box');
+
+    const lastSubmission = localStorage.getItem('lastSubmission');
+    const nowUAE = getUAETime();
+    const todayUAE = nowUAE.toISOString().split('T')[0];
+
+    if (lastSubmission === todayUAE) {
+        messageEl.innerText = "✅ Your attendance has already been marked for today 😊";
+        messageEl.classList.add('success-box');
+        formLinkEl.classList.add('hidden');
+        return;
+    }
+
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+            function(position){
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+                const distance = getDistance(userLat, userLon, officeLat, officeLon);
+
+                if(distance <= maxDistanceMeters){
+                    messageEl.innerText = "You are within the Attendance area.";
+                    const formBase = "https://forms.office.com/Pages/ResponsePage.aspx?id=go0NyWGKG0KfjDWri8W8nLDyzzJGlihFvj_UvRAMtoxUNjFJUE03QU0zTjNLVk42NEQ0N0ZSUjkwSS4u";
+                    const prefilledURL = `${formBase}&rb5a3b1867a594be49b4dac3724ffb60f=${encodeURIComponent(studentData.name)}&r5b6925327b93464693dcf63b96c0159a=${encodeURIComponent(studentData.id)}&r7a175eb6f3be41b4af0855ddda20d559=${encodeURIComponent(todayUAE)}`;
+
+                    formLinkEl.href = prefilledURL;
+                    formLinkEl.classList.remove('hidden');
+
+                    formLinkEl.addEventListener('click', () => {
+                        localStorage.setItem('lastSubmission', todayUAE);
+                    });
+                } else {
+                    messageEl.innerText = "You are not within the allowed area. Please move closer to the office.";
+                    formLinkEl.classList.add('hidden');
+                }
+            },
+            function(error){
+                messageEl.innerText = "Unable to get your location. Please allow location access.";
+                formLinkEl.classList.add('hidden');
+            },
+            {enableHighAccuracy:false, timeout:5000, maximumAge:10000}
+        );
+    } else {
+        messageEl.innerText = "Geolocation is not supported by your browser.";
+        formLinkEl.classList.add('hidden');
+    }
+}
+</script>
+</body>
+</html>
