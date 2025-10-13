@@ -8,7 +8,6 @@
     body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; display:flex; justify-content:center; align-items:center; height:100vh; text-align:center; }
     .container { background:white; padding:25px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:90%; max-width:600px; }
     h1 { color:#333; }
-    p { color:#555; }
     input { padding:10px; width:80%; margin:8px 0; border-radius:4px; border:1px solid #ccc; }
     .btn { background:#4CAF50; color:white; padding:12px 25px; border:none; border-radius:5px; cursor:pointer; display:inline-block; margin-top:15px; text-decoration:none; }
     .btn:hover { background:#45a049; }
@@ -82,12 +81,14 @@ const officeLat = 24.465868;
 const officeLon = 54.375422;
 const maxDistanceMeters = 5000;
 
+// Get UAE time
 function getUAETime() {
     const nowUTC = new Date();
     const uaeOffset = 4 * 60;
     return new Date(nowUTC.getTime() + uaeOffset * 60000);
 }
 
+// Reset attendance at 6 AM UAE time
 function checkAndResetAttendance() {
     const storedDate = localStorage.getItem('lastSubmission');
     if (!storedDate) return;
@@ -148,8 +149,9 @@ function startLocationVerification(studentData){
     }
 
     if(navigator.geolocation){
+        // Show animation and top message only once
         loadingAnim.style.display = "block";
-        messageEl.innerText = "Accessing your location… please wait"; // keep only this
+        messageEl.innerText = "Accessing your location… please wait";
 
         let locationResult = null;
 
@@ -165,6 +167,7 @@ function startLocationVerification(studentData){
 
         setTimeout(() => {
             loadingAnim.style.display = "none";
+
             if(locationResult){
                 if(locationResult.error){
                     messageEl.innerText = "Unable to get your location. Please allow location access.";
@@ -178,10 +181,14 @@ function startLocationVerification(studentData){
                     if(distance <= maxDistanceMeters){
                         messageEl.innerText = "You are within the Attendance area.";
 
+                        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                        const displayDate = new Date().toISOString().split('T')[0];
+                        const formattedDate = new Date(displayDate).toLocaleDateString('en-GB', options);
+
                         infoSection.innerHTML = `
                             <p><strong>Student ID:</strong> ${studentData.id}</p>
                             <p><strong>Full Name:</strong> ${studentData.name}</p>
-                            <p><strong>Date:</strong> ${nowUAE.toISOString().split('T')[0]}</p>
+                            <p><strong>Date:</strong> ${formattedDate}</p>
                         `;
                         infoSection.classList.remove('hidden');
                         submitBtn.classList.remove('hidden');
@@ -196,7 +203,7 @@ function startLocationVerification(studentData){
                 infoSection.classList.add('hidden');
                 submitBtn.classList.add('hidden');
             }
-        }, 3000); // 3 seconds
+        }, 3000);
     } else {
         loadingAnim.style.display = "none";
         messageEl.innerText = "Geolocation is not supported by your browser.";
@@ -242,8 +249,8 @@ function submitAttendance(){
     form.submit();
 
     localStorage.setItem('lastSubmission', todayUAE);
-    infoSection.classList.add('hidden');
-    submitBtn.classList.add('hidden');
+    document.getElementById('info-section').classList.add('hidden');
+    document.getElementById('submit-btn').classList.add('hidden');
     const messageEl = document.getElementById('message');
     messageEl.innerText = "✅ Attendance submitted successfully!";
     messageEl.classList.add('success-box');
