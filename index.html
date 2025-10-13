@@ -39,6 +39,20 @@
         margin:6px 0;
         color:#333;
     }
+
+    /* Animation for location access */
+    #loading-animation {
+        display:none;
+        margin-top:20px;
+    }
+    #loading-animation .pin {
+        font-size:50px;
+        animation:bounce 1s infinite;
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
 </style>
 </head>
 <body>
@@ -58,6 +72,12 @@
     <!-- ✅ Info display -->
     <div id="info-section" class="info-box hidden"></div>
     <button id="submit-btn" class="btn hidden" onclick="submitAttendance()">Submit Attendance</button>
+
+    <!-- Location animation -->
+    <div id="loading-animation">
+        <div class="pin">📍</div>
+        <p>Accessing your location… please wait</p>
+    </div>
 </div>
 
 <script>
@@ -118,6 +138,8 @@ function startLocationVerification(studentData){
     const messageEl = document.getElementById('message');
     const infoSection = document.getElementById('info-section');
     const submitBtn = document.getElementById('submit-btn');
+    const loadingAnim = document.getElementById('loading-animation');
+
     messageEl.classList.remove('hidden');
     messageEl.classList.remove('success-box');
 
@@ -130,12 +152,18 @@ function startLocationVerification(studentData){
         messageEl.classList.add('success-box');
         infoSection.classList.add('hidden');
         submitBtn.classList.add('hidden');
+        loadingAnim.style.display = "none";
         return;
     }
 
     if(navigator.geolocation){
+        // Show loading animation
+        loadingAnim.style.display = "block";
+        messageEl.innerText = "Accessing your location… please wait";
+
         navigator.geolocation.getCurrentPosition(
             function(position){
+                loadingAnim.style.display = "none";
                 const userLat = position.coords.latitude;
                 const userLon = position.coords.longitude;
                 const distance = getDistance(userLat, userLon, officeLat, officeLon);
@@ -158,6 +186,7 @@ function startLocationVerification(studentData){
                 }
             },
             function(error){
+                loadingAnim.style.display = "none";
                 messageEl.innerText = "Unable to get your location. Please allow location access.";
                 infoSection.classList.add('hidden');
                 submitBtn.classList.add('hidden');
@@ -165,6 +194,7 @@ function startLocationVerification(studentData){
             {enableHighAccuracy:false, timeout:5000, maximumAge:10000}
         );
     } else {
+        loadingAnim.style.display = "none";
         messageEl.innerText = "Geolocation is not supported by your browser.";
         infoSection.classList.add('hidden');
         submitBtn.classList.add('hidden');
