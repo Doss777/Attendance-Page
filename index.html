@@ -53,8 +53,6 @@
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-15px); }
     }
-
-    .bold-date { font-weight:bold; }
 </style>
 </head>
 <body>
@@ -83,8 +81,6 @@
 const officeLat = 24.465868;
 const officeLon = 54.375422;
 const maxDistanceMeters = 5000;
-
-const today = new Date().toISOString().split('T')[0]; // for MS Forms
 
 function getUAETime() {
     const nowUTC = new Date();
@@ -129,11 +125,6 @@ function getDistance(lat1, lon1, lat2, lon2){
     return R*c;
 }
 
-function formatDisplayDate(dateStr){
-    const options = { day:'2-digit', month:'short', year:'numeric' };
-    return new Date(dateStr).toLocaleDateString('en-GB', options);
-}
-
 function startLocationVerification(studentData){
     const messageEl = document.getElementById('message');
     const infoSection = document.getElementById('info-section');
@@ -158,7 +149,7 @@ function startLocationVerification(studentData){
 
     if(navigator.geolocation){
         loadingAnim.style.display = "block";
-        messageEl.innerText = "Accessing your location… please wait";
+        messageEl.innerText = "Accessing your location… please wait"; // keep only this
 
         let locationResult = null;
 
@@ -190,7 +181,7 @@ function startLocationVerification(studentData){
                         infoSection.innerHTML = `
                             <p><strong>Student ID:</strong> ${studentData.id}</p>
                             <p><strong>Full Name:</strong> ${studentData.name}</p>
-                            <p><strong>Date:</strong> <span class="bold-date">${formatDisplayDate(todayUAE)}</span></p>
+                            <p><strong>Date:</strong> ${nowUAE.toISOString().split('T')[0]}</p>
                         `;
                         infoSection.classList.remove('hidden');
                         submitBtn.classList.remove('hidden');
@@ -205,7 +196,7 @@ function startLocationVerification(studentData){
                 infoSection.classList.add('hidden');
                 submitBtn.classList.add('hidden');
             }
-        }, 3000);
+        }, 3000); // 3 seconds
     } else {
         loadingAnim.style.display = "none";
         messageEl.innerText = "Geolocation is not supported by your browser.";
@@ -251,8 +242,8 @@ function submitAttendance(){
     form.submit();
 
     localStorage.setItem('lastSubmission', todayUAE);
-    document.getElementById('info-section').classList.add('hidden');
-    document.getElementById('submit-btn').classList.add('hidden');
+    infoSection.classList.add('hidden');
+    submitBtn.classList.add('hidden');
     const messageEl = document.getElementById('message');
     messageEl.innerText = "✅ Attendance submitted successfully!";
     messageEl.classList.add('success-box');
@@ -260,4 +251,3 @@ function submitAttendance(){
 </script>
 </body>
 </html>
-
