@@ -54,7 +54,6 @@
         50% { transform: translateY(-15px); }
     }
 
-    /* Bold date style */
     .bold-date { font-weight:bold; }
 </style>
 </head>
@@ -69,7 +68,6 @@
         <button class="btn" onclick="registerStudent()">Register</button>
     </div>
 
-    <p id="date-display" class="hidden bold-date"></p>
     <p id="message" class="hidden"></p>
 
     <div id="info-section" class="info-box hidden"></div>
@@ -86,16 +84,7 @@ const officeLat = 24.465868;
 const officeLon = 54.375422;
 const maxDistanceMeters = 5000;
 
-// Format date for display as DD-MMM-YYYY
-function formatDisplayDate(dateStr){
-    const options = { day:'2-digit', month:'short', year:'numeric' };
-    return new Date(dateStr).toLocaleDateString('en-GB', options);
-}
-
-// Show today's date
-const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD for MS Forms
-document.getElementById('date-display').innerText = formatDisplayDate(today);
-document.getElementById('date-display').classList.remove('hidden');
+const today = new Date().toISOString().split('T')[0]; // for MS Forms
 
 function getUAETime() {
     const nowUTC = new Date();
@@ -138,6 +127,11 @@ function getDistance(lat1, lon1, lat2, lon2){
     const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R*c;
+}
+
+function formatDisplayDate(dateStr){
+    const options = { day:'2-digit', month:'short', year:'numeric' };
+    return new Date(dateStr).toLocaleDateString('en-GB', options);
 }
 
 function startLocationVerification(studentData){
@@ -266,3 +260,4 @@ function submitAttendance(){
 </script>
 </body>
 </html>
+
