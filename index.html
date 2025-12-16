@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Attendance Registration</title>
 <style>
     body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f9; display:flex; justify-content:center; align-items:center; height:100vh; text-align:center; }
@@ -45,9 +45,9 @@
 
     <div id="registration-form">
         <p>Please register once to continue:</p>
-        <input type="text" id="student-id" placeholder="Student ID" required><br>
-        <input type="text" id="student-name" placeholder="Full Name" required><br>
-        <input type="email" id="student-email" placeholder="Email Address" required><br>
+        <input type="text" id="student-id" placeholder="Student ID" required /><br />
+        <input type="text" id="student-name" placeholder="Full Name" required /><br />
+        <input type="email" id="student-email" placeholder="Email Address" required /><br />
         <button class="btn" onclick="registerStudent()">Register</button>
     </div>
 
@@ -65,6 +65,9 @@ const officeLat = 24.435924784077514;
 const officeLon = 54.63383700803229;
 const maxDistanceMeters = 1000;
 
+// Power Automate flow URL
+const flowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4c134c74b3cf4e10bb06058aece18852/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=V_0WhaILSfvNqYIVGEsGVvREB13K5H3zviFW1JeCvEw";
+
 // UAE time
 function getUAETime() {
     const nowUTC = new Date();
@@ -73,60 +76,90 @@ function getUAETime() {
 
 // Reset at 6 AM UAE
 function checkAndResetAttendance() {
-    const storedDate = localStorage.getItem('lastSubmission');
+    const storedDate = localStorage.getItem("lastSubmission");
     if (!storedDate) return;
 
     const now = getUAETime();
-    const today = now.toISOString().split('T')[0];
+    const today = now.toISOString().split("T")[0];
     const resetTime = new Date(`${today}T06:00:00+04:00`);
 
     if (now >= resetTime && storedDate !== today) {
-        localStorage.removeItem('lastSubmission');
+        localStorage.removeItem("lastSubmission");
     }
 }
 checkAndResetAttendance();
 
-const storedData = JSON.parse(localStorage.getItem('studentData'));
+const storedData = JSON.parse(localStorage.getItem("studentData"));
 if (storedData) {
-    document.getElementById('registration-form').classList.add('hidden');
+    document.getElementById("registration-form").classList.add("hidden");
     startLocationVerification(storedData);
 }
 
-function registerStudent(){
-    const id = document.getElementById('student-id').value.trim();
-    const name = document.getElementById('student-name').value.trim();
-    const email = document.getElementById('student-email').value.trim();
-    if(!id || !name || !email){ alert("Please fill in all fields"); return; }
+function registerStudent() {
+    const id = document.getElementById("student-id").value.trim();
+    const name = document.getElementById("student-name").value.trim();
+    const email = document.getElementById("student-email").value.trim();
+    if (!id || !name || !email) {
+        alert("Please fill in all fields");
+        return;
+    }
 
-    localStorage.setItem('studentData', JSON.stringify({id, name, email}));
-    document.getElementById('registration-form').classList.add('hidden');
-    startLocationVerification({id, name, email});
+    const studentData = { id, name, email };
+    localStorage.setItem("studentData", JSON.stringify(studentData));
+    document.getElementById("registration-form").classList.add("hidden");
+
+    // Trigger the Power Automate flow with registration data
+    sendRegistrationToFlow(studentData);
+
+    startLocationVerification(studentData);
 }
 
-function getDistance(lat1, lon1, lat2, lon2){
+function sendRegistrationToFlow(studentData) {
+    fetch(flowUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            StudentID: studentData.id,
+            FullName: studentData.name,
+            Email: studentData.email
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error("Failed to send registration data to flow.");
+        }
+    })
+    .catch(error => {
+        console.error("Error sending registration data to flow:", error);
+    });
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000;
-    const dLat = (lat2-lat1) * Math.PI / 180;
-    const dLon = (lon2-lon1) * Math.PI / 180;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
-        Math.sin(dLat/2) ** 2 +
-        Math.cos(lat1*Math.PI/180) *
-        Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function startLocationVerification(studentData){
-    const messageEl = document.getElementById('message');
-    const submitBtn = document.getElementById('submit-btn');
-    const loadingAnim = document.getElementById('loading-animation');
+function startLocationVerification(studentData) {
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submit-btn");
+    const loadingAnim = document.getElementById("loading-animation");
 
-    messageEl.classList.remove('hidden');
-    messageEl.classList.remove('success-box');
+    messageEl.classList.remove("hidden");
+    messageEl.classList.remove("success-box");
 
-    const today = getUAETime().toISOString().split('T')[0];
-    if (localStorage.getItem('lastSubmission') === today) {
+    const today = getUAETime().toISOString().split("T")[0];
+    if (localStorage.getItem("lastSubmission") === today) {
         messageEl.innerText = "✅ Your attendance has already been marked for today 😊";
-        messageEl.classList.add('success-box');
+        messageEl.classList.add("success-box");
         return;
     }
 
@@ -144,10 +177,10 @@ function startLocationVerification(studentData){
             );
 
             if (distance <= maxDistanceMeters) {
-                messageEl.innerText = "You are within the Attendance area!";
-                submitBtn.classList.remove('hidden');
+                messageEl.innerText = "You are within the Attendance area! ⚠️";
+                submitBtn.classList.remove("hidden");
             } else {
-                messageEl.innerText = "You are not within the allowed area.";
+                messageEl.innerText = "You are not within the allowed area ";
             }
         },
         () => {
@@ -158,11 +191,11 @@ function startLocationVerification(studentData){
     );
 }
 
-function goToForm(){
-    const studentData = JSON.parse(localStorage.getItem('studentData'));
-    const today = getUAETime().toISOString().split('T')[0];
+function goToForm() {
+    const studentData = JSON.parse(localStorage.getItem("studentData"));
+    const today = getUAETime().toISOString().split("T")[0];
 
-    localStorage.setItem('lastSubmission', today);
+    localStorage.setItem("lastSubmission", today);
 
     const formUrl =
         "https://forms.office.com/Pages/ResponsePage.aspx?id=go0NyWGKG0KfjDWri8W8nLDyzzJGlihFvj_UvRAMtoxUNjFJUE03QU0zTjNLVk42NEQ0N0ZSUjkwSS4u" +
