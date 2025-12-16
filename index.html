@@ -251,6 +251,20 @@ function showAttendanceReview() {
     document.getElementById("review-datetime").innerText = now.toLocaleString();
 }
 
+function getUAEISOString() {
+    const nowUTC = new Date();
+    const uaeTime = new Date(nowUTC.getTime() + 4 * 60 * 60 * 1000);
+
+    const year = uaeTime.getUTCFullYear();
+    const month = String(uaeTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(uaeTime.getUTCDate()).padStart(2, '0');
+    const hours = String(uaeTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(uaeTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(uaeTime.getUTCSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+04:00`;
+}
+
 function submitAttendance() {
     const studentData = JSON.parse(localStorage.getItem("studentData"));
     const now = getUAETime();
@@ -267,7 +281,7 @@ function submitAttendance() {
     const attendanceData = {
         Student: studentData.name,
         StudentID: studentData.id,
-        DateTime: now.toISOString()
+        DateTime: getUAEISOString()
     };
 
     fetch(attendanceFlowUrl, {
