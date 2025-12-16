@@ -47,6 +47,7 @@
         <p>Please register once to continue:</p>
         <input type="text" id="student-id" placeholder="Student ID" required><br>
         <input type="text" id="student-name" placeholder="Full Name" required><br>
+        <input type="email" id="student-email" placeholder="Email Address" required><br>
         <button class="btn" onclick="registerStudent()">Register</button>
     </div>
 
@@ -94,11 +95,12 @@ if (storedData) {
 function registerStudent(){
     const id = document.getElementById('student-id').value.trim();
     const name = document.getElementById('student-name').value.trim();
-    if(!id || !name){ alert("Please fill in all fields"); return; }
+    const email = document.getElementById('student-email').value.trim();
+    if(!id || !name || !email){ alert("Please fill in all fields"); return; }
 
-    localStorage.setItem('studentData', JSON.stringify({id, name}));
+    localStorage.setItem('studentData', JSON.stringify({id, name, email}));
     document.getElementById('registration-form').classList.add('hidden');
-    startLocationVerification({id, name});
+    startLocationVerification({id, name, email});
 }
 
 function getDistance(lat1, lon1, lat2, lon2){
