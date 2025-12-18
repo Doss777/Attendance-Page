@@ -113,6 +113,9 @@ const attendanceFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.envi
 const checkClearPermissionFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e7fac80971a5465e96b2fecadbccfdd0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=cX7dp_9jfIVDb5A2cHzdIk4tPFXd1iu8O1YD0kWYIJc";
 const resetClearPermissionFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a52f33b10b774b27a898ac26a50d36dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=U13p6N5hnv4kVDlfQPagXY4KmYk3KGqPmNBfs-MKlK4";
 
+// NEW URL for Delete Registration from SharePoint
+const deleteRegistrationFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5791e0771af14cbea1ef5d523fe60c98/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3uu1u056-McIeaN9b5ns_zvGtGg-0gkJI4DqDg1Tyrc";
+
 function getUAETime() {
     const nowUTC = new Date();
     return new Date(nowUTC.getTime() + 4 * 60 * 60000);
@@ -342,10 +345,26 @@ function clearRegistration() {
     localStorage.removeItem("studentData");
     localStorage.removeItem("lastSubmission");
 
+    // Call the ResetClearRegistrationPermission flow
     fetch(resetClearPermissionFlowUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ StudentID: studentData.id })
+    });
+
+    // Call the DeleteRegistration flow to remove SharePoint data
+    fetch(deleteRegistrationFlowUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ StudentID: studentData.id })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error("Failed to delete registration from SharePoint");
+        }
+    })
+    .catch(error => {
+        console.error("Error deleting registration:", error);
     });
 
     alert("Registration cleared. Please refresh and register again.");
