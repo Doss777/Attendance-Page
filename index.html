@@ -80,6 +80,9 @@
     <!-- Changed button text to 'Review Attendance' and onclick -->
     <button id="submit-btn" class="btn hidden" onclick="showAttendanceReview()">Mark Attendance</button>
 
+    <!-- Clear Registration button (added as per your request) -->
+    <button id="clear-btn" class="btn hidden" onclick="clearRegistration()">Clear Registration</button>
+
     <!-- New attendance review container -->
     <div id="attendance-review">
         <h2>Trainee Details</h2>
@@ -106,6 +109,10 @@ const registrationFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.en
 // Attendance Flow URL
 const attendanceFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/57c92940051d45378ca150defaf99c01/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uJxqo2979DyhYqKSo5GsqlVwWrNYq_Tn9LLDy9eFvcg";
 
+// New URLs for Clear Registration permission and reset
+const checkClearPermissionFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e7fac80971a5465e96b2fecadbccfdd0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=cX7dp_9jfIVDb5A2cHzdIk4tPFXd1iu8O1YD0kWYIJc";
+const resetClearPermissionFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a52f33b10b774b27a898ac26a50d36dc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=U13p6N5hnv4kVDlfQPagXY4KmYk3KGqPmNBfs-MKlK4";
+
 function getUAETime() {
     const nowUTC = new Date();
     return new Date(nowUTC.getTime() + 4 * 60 * 60000);
@@ -129,6 +136,7 @@ const storedData = JSON.parse(localStorage.getItem("studentData"));
 if (storedData) {
     document.getElementById("registration-form").classList.add("hidden");
     startLocationVerification(storedData);
+    checkClearPermission(storedData.id);   // <-- added this call here as per your request
 }
 
 function registerStudent() {
@@ -308,6 +316,42 @@ function submitAttendance() {
         alert("Error submitting attendance: " + err.message);
     });
 }
+
+// ----------------- Added Functions for Clear Registration -----------------
+
+function checkClearPermission(studentId) {
+    fetch(checkClearPermissionFlowUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ StudentID: studentId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.allowClear === true) {
+            document.getElementById("clear-btn").classList.remove("hidden");
+        }
+    })
+    .catch(err => console.error("Error checking clear permission:", err));
+}
+
+function clearRegistration() {
+    if (!confirm("Are you sure you want to clear your registration?")) return;
+
+    const studentData = JSON.parse(localStorage.getItem("studentData"));
+
+    localStorage.removeItem("studentData");
+    localStorage.removeItem("lastSubmission");
+
+    fetch(resetClearPermissionFlowUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ StudentID: studentData.id })
+    });
+
+    alert("Registration cleared. Please refresh and register again.");
+    location.reload();
+}
+
 </script>
 
 </body>
