@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -27,7 +27,9 @@
   .page-title { font-size: 44px; font-weight: 800; text-align:center; margin: 0 0 8px 0; color:#333; }
   .page-subtitle { text-align:center; color:#666; margin: 0 0 18px 0; font-size: 18px; }
   .info-card { border:1px solid #e6e6e6; border-radius:10px; padding:16px; background:#fafafa; margin: 14px 0 18px 0; }
-  .info-row { font-size: 20px; line-height: 1.7; color:#222; }
+
+  /* CHANGED: reduce by 2 points (20 -> 18) */
+  .info-row { font-size: 18px; line-height: 1.7; color:#222; }
   .info-row strong { font-weight: 800; }
 </style>
 </head>
@@ -84,9 +86,11 @@
     <p class="page-subtitle">Current Date & Time: <span id="current-datetime"></span></p>
 
     <div class="info-card">
-      <div class="info-row"><strong>Student ID:</strong> <span id="attendee-id"></span></div>
-      <div class="info-row"><strong>Full Name:</strong> <span id="attendee-name"></span></div>
-      <div class="info-row"><strong>Email:</strong> <span id="attendee-email"></span></div>
+      <!-- CHANGED LABELS + FIELD REPLACEMENT -->
+      <div class="info-row"><strong>ID:</strong> <span id="attendee-id"></span></div>
+      <div class="info-row"><strong>Name:</strong> <span id="attendee-name"></span></div>
+      <div class="info-row"><strong>Date & Time:</strong> <span id="attendee-email"></span></div>
+      <!-- NOTE: keeping the same span id="attendee-email" so JS functions remain unchanged -->
     </div>
 
     <button id="btn-mark-attendance">Mark Attendance</button>
@@ -417,7 +421,9 @@ function loadAttendanceDetails() {
 
   document.getElementById('attendee-name').textContent = name || '';
   document.getElementById('attendee-id').textContent = studentID || '';
-  document.getElementById('attendee-email').textContent = email;
+  /* CHANGED: show date & time in the same place where email was shown (same span id, functions unchanged) */
+  document.getElementById('attendee-email').textContent = document.getElementById('current-datetime').textContent;
+
   updateCurrentDateTime();
 
   // === Redirect to result page if already marked today ===
@@ -428,6 +434,12 @@ function updateCurrentDateTime() {
   const now = new Date();
   const uaeTime = new Date(now.getTime() + 4*60*60*1000);
   document.getElementById('current-datetime').textContent = uaeTime.toLocaleString();
+
+  /* NEW (safe): keep the Date & Time row updated too, without changing any logic */
+  if (document.getElementById('attendance-section').style.display !== 'none') {
+    const dtEl = document.getElementById('attendee-email');
+    if (dtEl) dtEl.textContent = document.getElementById('current-datetime').textContent;
+  }
 }
 
 setInterval(updateCurrentDateTime, 1000);
