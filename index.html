@@ -364,7 +364,8 @@ async function loadTaskCountFromSharePoint() {
         (data.taskCount !== undefined && data.taskCount !== null) ? data.taskCount : '-';
 
       document.getElementById('taskcount-last-date').textContent =
-        data.submittedOn ? new Date(data.submittedOn).toLocaleString() : '-';
+        data.submittedOn ? data.submittedOn : '-';
+
     }
   } catch(e) {
     // do not block
