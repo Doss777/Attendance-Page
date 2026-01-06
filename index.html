@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>   
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -175,6 +175,28 @@
     <button id="btn-back-from-result" class="red-btn">Back</button>
   </div>
 
+  <!-- NEW: TASK COUNT SECTION -->
+  <div id="taskcount-section" class="hidden">
+    <h2 class="page-title">Task Count</h2>
+    <p class="page-subtitle">Update Logbook Task Count</p>
+
+    <input type="number" id="taskcount-input" placeholder="Enter your latest task count" />
+    <button id="btn-submit-taskcount">Submit</button>
+
+    <div class="info-card">
+      <div class="info-row"><strong>Last Task Count:</strong> <span id="taskcount-last-value">-</span></div>
+      <div class="info-row"><strong>Submitted On:</strong> <span id="taskcount-last-date">-</span></div>
+    </div>
+
+    <p id="taskcount-message" class="message hidden"></p>
+    <button id="btn-back-from-taskcount" class="red-btn">Back</button>
+  </div>
+
+  <!-- NEW: TASK COUNT SUCCESS MESSAGE (2 seconds) -->
+  <div id="taskcount-success-section" class="hidden">
+    <p id="taskcount-success-message" class="message success">✅ Your logbook task count was updated successfully.</p>
+  </div>
+
 </div>
 
 <script>
@@ -189,6 +211,10 @@ const attendanceFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.envi
 // === NEW: Check Attendance (Today) Flow URL ===
 const checkAttendanceTodayUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9e6031c77c0b41f6a1ecefa8d727119a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RQyxFSY-f9MYjhwsQ_j4ixc2BeRNskIcx1dRr2IHgSo";
 
+// === NEW: TASK COUNT FLOW URLS (PASTE YOUR FLOW URLS HERE) ===
+const getTaskCountUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85dc1a9c07834f938c74cdde1f3f2978/triggers/manual/paths/invoke?api-version=1";
+const updateTaskCountUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fc5ee9e607714150bbbfe4fc1984833c/triggers/manual/paths/invoke?api-version=1";
+
 // === NEW: Location Gate Settings ===
 const AUTH_LAT = 24.43631074997773;
 const AUTH_LNG = 54.633581449737385;
@@ -196,14 +222,14 @@ const AUTH_RADIUS_METERS = 500;
 
 // === Utility functions ===
 function showSection(sectionId) {
-  ['location-section','registration-section', 'otp-section', 'login-section', 'dashboard-section', 'attendance-section', 'attendance-result-section'].forEach(id => {
+  ['location-section','registration-section', 'otp-section', 'login-section', 'dashboard-section', 'attendance-section', 'attendance-result-section','taskcount-section','taskcount-success-section'].forEach(id => {
     document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
   });
   clearMessages();
 }
 
 function clearMessages() {
-  ['reg-message', 'otp-message', 'login-message', 'attendance-message'].forEach(id => {
+  ['reg-message', 'otp-message', 'login-message', 'attendance-message','taskcount-message'].forEach(id => {
     const el = document.getElementById(id);
     el.className = 'message hidden';
     el.textContent = '';
@@ -312,6 +338,36 @@ async function checkAttendanceTodayAndLock() {
     }
   } catch(e) {
     // If check fails, do not block the student
+  }
+}
+
+// === NEW: Load Task Count from SharePoint via Flow ===
+async function loadTaskCountFromSharePoint() {
+  const studentID = sessionStorage.getItem('loggedInStudentID');
+  if(!studentID) return;
+
+  document.getElementById('taskcount-last-value').textContent = '-';
+  document.getElementById('taskcount-last-date').textContent = '-';
+
+  try {
+    const res = await fetch(getTaskCountUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ StudentID: studentID })
+    });
+
+    if(!res.ok) throw new Error('Task count fetch failed');
+    const data = await res.json();
+
+    if(data && data.found) {
+      document.getElementById('taskcount-last-value').textContent =
+        (data.taskCount !== undefined && data.taskCount !== null) ? data.taskCount : '-';
+
+      document.getElementById('taskcount-last-date').textContent =
+        data.submittedOn ? new Date(data.submittedOn).toLocaleString() : '-';
+    }
+  } catch(e) {
+    // do not block
   }
 }
 
@@ -555,8 +611,10 @@ document.getElementById('btn-dashboard-aircraft').addEventListener('click', () =
   showAttendanceResult('🚧 Aircraft Allocation - Coming Soon');
 });
 
-document.getElementById('btn-dashboard-taskcount').addEventListener('click', () => {
-  showAttendanceResult('🚧 Task Count - Coming Soon');
+document.getElementById('btn-dashboard-taskcount').addEventListener('click', async () => {
+  showSection('taskcount-section');
+  document.getElementById('taskcount-input').value = '';
+  await loadTaskCountFromSharePoint();
 });
 
 document.getElementById('btn-logout-dashboard').addEventListener('click', () => {
@@ -575,6 +633,58 @@ document.getElementById('btn-back-from-result').addEventListener('click', () => 
 
 document.getElementById('btn-back-from-location').addEventListener('click', () => {
   showSection('dashboard-section');
+});
+
+document.getElementById('btn-back-from-taskcount').addEventListener('click', () => {
+  showSection('dashboard-section');
+});
+
+// === NEW: SUBMIT TASK COUNT ===
+document.getElementById('btn-submit-taskcount').addEventListener('click', async () => {
+  clearMessages();
+
+  const studentID = sessionStorage.getItem('loggedInStudentID');
+  if(!studentID) {
+    showMessage('taskcount-message', 'You are not logged in.');
+    showSection('login-section');
+    return;
+  }
+
+  const rawVal = document.getElementById('taskcount-input').value;
+  const taskCount = Number(rawVal);
+
+  if(!rawVal || isNaN(taskCount)) {
+    showMessage('taskcount-message', 'Please enter a valid task count.');
+    return;
+  }
+
+  // Always today's date/time
+  const submittedOn = new Date().toISOString();
+
+  try {
+    const res = await fetch(updateTaskCountUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        StudentID: studentID,
+        TaskCount: taskCount,
+        SubmittedOnDate: submittedOn
+      })
+    });
+
+    if(!res.ok) throw new Error('Failed to update task count');
+
+    showSection('taskcount-success-section');
+
+    setTimeout(async () => {
+      showSection('taskcount-section');
+      document.getElementById('taskcount-input').value = '';
+      await loadTaskCountFromSharePoint();
+    }, 2000);
+
+  } catch(err) {
+    showMessage('taskcount-message', 'Error: ' + err.message);
+  }
 });
 
 // === Load Attendance Details ===
