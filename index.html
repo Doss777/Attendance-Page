@@ -10,6 +10,7 @@
   h2 { color: #333; text-align:center; }
   input[type=text], input[type=email], input[type=password], input[type=number], select {
     width: 100%; padding: 10px; margin: 10px 0; border:1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    background: #fff;
   }
   button {
     background-color: #4caf50; color: white; border:none; padding: 12px; width: 100%; font-size: 16px; cursor:pointer; border-radius: 5px;
@@ -27,8 +28,6 @@
   .page-title { font-size: 44px; font-weight: 800; text-align:center; margin: 0 0 8px 0; color:#333; }
   .page-subtitle { text-align:center; color:#666; margin: 0 0 18px 0; font-size: 18px; }
   .info-card { border:1px solid #e6e6e6; border-radius:10px; padding:16px; background:#fafafa; margin: 14px 0 18px 0; }
-
-  /* CHANGED: reduce by 2 points (20 -> 18) */
   .info-row { font-size: 18px; line-height: 1.7; color:#222; }
   .info-row strong { font-weight: 800; }
 
@@ -77,6 +76,9 @@
 
   /* === NEW: Back button (red) === */
   .red-btn { background-color:#c0392b; color:#fff; margin-top:10px; }
+
+  /* SMALL heading style */
+  .small-heading { font-size: 14px; font-weight: 800; color:#333; margin: 0 0 6px 0; }
 </style>
 </head>
 <body>
@@ -108,9 +110,7 @@
 
     <button id="btn-send-otp" disabled>Send OTP</button>
 
-    <!-- New Login Button Added Below -->
     <button id="btn-go-to-login" class="blue-btn">Login</button>
-    
     <p id="reg-message" class="message hidden"></p>
   </div>
 
@@ -151,8 +151,6 @@
   <!-- ATTENDANCE -->
   <div id="attendance-section" class="hidden">
     <h2 class="page-title">Attendance</h2>
-
-    <!-- KEEP TIME UPDATED FOR JS, BUT DO NOT DISPLAY IT HERE -->
     <span id="current-datetime" class="hidden"></span>
 
     <div class="info-card">
@@ -196,12 +194,12 @@
     <p id="taskcount-success-message" class="message success">✅ Your logbook task count was updated successfully.</p>
   </div>
 
-  <!-- ✅ NEW: AIRCRAFT ALLOCATION SECTION -->
+  <!-- AIRCRAFT ALLOCATION -->
   <div id="aircraft-section" class="hidden">
     <h2 class="page-title">Aircraft Allocation</h2>
-    <p class="page-subtitle">Update your current aircraft details</p>
+    <p class="page-subtitle">Update your current allocation</p>
 
-    <select id="aircraft-location" required>
+    <select id="air-location">
       <option value="">Select Location</option>
       <option>H1</option><option>H1-Outside</option>
       <option>H2</option><option>H2-Outside</option>
@@ -214,54 +212,40 @@
       <option>H6-C</option><option>H6-C-Outside</option>
       <option>H6-D</option><option>H6-D-Outside</option>
       <option>H7</option><option>H7-Outside</option>
-      <option>Bay 5</option>
-      <option>Bay 6</option>
-      <option>Bay 7</option>
-      <option>Bay 8</option>
+      <option>Bay 5</option><option>Bay 6</option><option>Bay 7</option><option>Bay 8</option>
     </select>
 
-    <input type="text" id="aircraft-registration" placeholder="Aircraft Registration (e.g., A6-XXX)" />
+    <input type="text" id="air-reg" placeholder="Aircraft Registration" />
 
-    <select id="aircraft-type" required>
+    <select id="air-type">
       <option value="">Select Aircraft Type</option>
-      <option>Airbus A318</option>
-      <option>Airbus A319</option>
-      <option>Airbus A320</option>
-      <option>Airbus A321</option>
-      <option>Airbus A330</option>
-      <option>Airbus A350</option>
-      <option>Airbus A380</option>
-      <option>Boeing 737</option>
-      <option>Boeing 747</option>
-      <option>Boeing 767</option>
-      <option>Boeing 777</option>
-      <option>Boeing 787</option>
+      <option>Airbus A318</option><option>Airbus A319</option><option>Airbus A320</option><option>Airbus A321</option>
+      <option>Airbus A330</option><option>Airbus A350</option><option>Airbus A380</option>
+      <option>Boeing 737</option><option>Boeing 747</option><option>Boeing 767</option><option>Boeing 777</option><option>Boeing 787</option>
     </select>
 
-    <!-- Check Manager: type OR choose -->
-    <input type="text" id="check-manager" placeholder="Check Manager (type or choose below)" list="check-manager-list" />
-    <datalist id="check-manager-list">
-      <option value="ALEX"></option>
-      <option value="BILAL"></option>
-      <option value="BRUNO"></option>
-      <option value="FAIZ"></option>
-      <option value="HUMAYUN"></option>
-      <option value="ISMAIL"></option>
-      <option value="JETRO"></option>
-      <option value="KHALID"></option>
-      <option value="KULAIDI"></option>
-      <option value="SAMI"></option>
-      <option value="SCOOBY"></option>
-      <option value="SINAN"></option>
+    <input type="text" id="air-checkmanager" placeholder="Check Manager" list="checkmanager-list" />
+    <datalist id="checkmanager-list">
+      <option value="ALEX"></option><option value="BILAL"></option><option value="BRUNO"></option><option value="FAIZ"></option>
+      <option value="HUMAYUN"></option><option value="ISMAIL"></option><option value="JETRO"></option><option value="KHALID"></option>
+      <option value="KULAIDI"></option><option value="SAMI"></option><option value="SCOOBY"></option><option value="SINAN"></option>
       <option value="SUMAN"></option>
     </datalist>
 
-    <input type="text" id="engineer" placeholder="Engineer Name" />
+    <input type="text" id="air-engineer" placeholder="Engineer" />
 
     <button id="btn-submit-aircraft">Submit</button>
-
     <p id="aircraft-message" class="message hidden"></p>
+
     <button id="btn-back-from-aircraft" class="red-btn">Back</button>
+
+    <!-- ✅ NEW: LAST ALLOCATION CARD (below back button, separate container) -->
+    <div class="info-card">
+      <div class="small-heading">Last Allocation</div>
+      <div class="info-row"><strong>Location :</strong> <span id="last-air-location">-</span></div>
+      <div class="info-row"><strong>Aircraft :</strong> <span id="last-air-reg">-</span></div>
+      <div class="info-row"><strong>Aircraft Type :</strong> <span id="last-air-type">-</span></div>
+    </div>
   </div>
 
 </div>
@@ -271,30 +255,33 @@
 const validateStudentExistenceUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/d2fd8d79a22c4ea5ada0c512eaac3257/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QN_nV-ZLNHyUGxSBgC5sM2VSp5o1_Uqohoevm5bKRXk";
 const sendOtpUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/c3340d8bb42a415cb1932224e0625722/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KuDuKpT56nk7IaIXYg9ywDCitNF4E96swrAeXJ00h4Q";
 const verifyOtpUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/ad9257dcff9b4f709459576e558ad7a6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jrQnda9Jr_Opg_c-QaLoSSC1ZInoi5d1uvO7J7B-4wQ";
-const createRegistrationUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/da543851a92f4e6d81aab7056650b8dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0s7uFvz6dPm1zfJIWTnpq4RzzuaJXNgx6AgHFZxegrg";
+const createRegistrationUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/da543851a92f4f6d81aab7056650b8dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0s7uFvz6dPm1zfJIWTnpq4RzzuaJXNgx6AgHFZxegrg";
 const checkLoginCredentialsUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/61a88948acdb477ebc866ac5ea518906/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-TNlSxMBeur6V4y7JinLwp8Is3gb2L4tQpxGEDKXCCk";
 const attendanceFlowUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/57c92940051d45378ca150defaf99c01/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uJxqo2979DyhYqKSo5GsqlVwWrNYq_Tn9LLDy9eFvcg";
 
-// === NEW: Check Attendance (Today) Flow URL ===
 const checkAttendanceTodayUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9e6031c77c0b41f6a1ecefa8d727119a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RQyxFSY-f9MYjhwsQ_j4ixc2BeRNskIcx1dRr2IHgSo";
 
-// === NEW: TASK COUNT FLOW URLS (PASTE YOUR FLOW URLS HERE) ===
 const getTaskCountUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85dc1a9c07834f938c74cdde1f3f2978/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KFlDrPLxUmV2HA74dETukVis0W8-xJfhD5Bf5BB6iIQ";
 const updateTaskCountUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fc5ee9e607714150bbbfe4fc1984833c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=eJvhsh7X_vbPGVYmmkUz7xcxvimDlwQY7BZs4uYYnJ8";
 
-// ✅ NEW: AIRCRAFT ALLOCATION UPDATE FLOW URL (PASTE YOUR NEW FLOW URL HERE)
-const updateAircraftAllocationUrl = "https://defaultc90d8d828a61421b9f8c35ab8bc5bc.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e4708a1e9007427da4cadc4684f0d036/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=5umQLNm7vhvXmczOHGd0eOKrbRKahNLC57HHRV8OE1U";
+// === Aircraft Allocation Flows ===
+// IMPORTANT:
+// - updateAircraftAllocationUrl = your existing UPDATE flow (writes into EYETT Trainee Tracker)
+// - getAircraftAllocationUrl = NEW/EXISTING GET flow (reads last saved values for this StudentID)
+const updateAircraftAllocationUrl = "PASTE_YOUR_UPDATE_AIRCRAFT_ALLOCATION_FLOW_URL_HERE";
+const getAircraftAllocationUrl = "PASTE_YOUR_GET_AIRCRAFT_ALLOCATION_FLOW_URL_HERE";
 
-// === NEW: Location Gate Settings ===
+// === Location Gate Settings ===
 const AUTH_LAT = 24.43631074997773;
 const AUTH_LNG = 54.633581449737385;
 const AUTH_RADIUS_METERS = 100;
 
 // === Utility functions ===
 function showSection(sectionId) {
-  ['location-section','registration-section', 'otp-section', 'login-section', 'dashboard-section',
-   'attendance-section', 'attendance-result-section','taskcount-section','taskcount-success-section',
-   'aircraft-section'
+  [
+    'location-section','registration-section','otp-section','login-section',
+    'dashboard-section','attendance-section','attendance-result-section',
+    'taskcount-section','taskcount-success-section','aircraft-section'
   ].forEach(id => {
     document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
   });
@@ -302,7 +289,7 @@ function showSection(sectionId) {
 }
 
 function clearMessages() {
-  ['reg-message', 'otp-message', 'login-message', 'attendance-message','taskcount-message','aircraft-message'].forEach(id => {
+  ['reg-message','otp-message','login-message','attendance-message','taskcount-message','aircraft-message'].forEach(id => {
     const el = document.getElementById(id);
     if(!el) return;
     el.className = 'message hidden';
@@ -317,13 +304,6 @@ function showMessage(id, text, isError = true) {
   el.classList.remove('hidden');
 }
 
-function getCurrentUAETimeISO() {
-  const now = new Date();
-  const uaeTime = new Date(now.getTime() + 4 * 60 * 60 * 1000);
-  return uaeTime.toISOString().slice(0,19);
-}
-
-// === Location Distance (Haversine) ===
 function toRad(x){ return x * Math.PI / 180; }
 function distanceMeters(lat1, lon1, lat2, lon2){
   const R = 6371000;
@@ -405,7 +385,7 @@ async function checkAttendanceTodayAndLock() {
       showAttendanceResult('✅ Your attendance has already been marked for today 😊');
       return;
     }
-  } catch(e) {}
+  } catch(e) { }
 }
 
 async function loadTaskCountFromSharePoint() {
@@ -432,20 +412,44 @@ async function loadTaskCountFromSharePoint() {
       document.getElementById('taskcount-last-date').textContent =
         data.submittedOn ? data.submittedOn : '-';
     }
-  } catch(e) {}
+  } catch(e) { }
+}
+
+/* ✅ NEW: Load last Aircraft Allocation (for Last Allocation container) */
+async function loadAircraftAllocationFromSharePoint() {
+  const studentID = sessionStorage.getItem('loggedInStudentID');
+  if(!studentID) return;
+
+  document.getElementById('last-air-location').textContent = '-';
+  document.getElementById('last-air-reg').textContent = '-';
+  document.getElementById('last-air-type').textContent = '-';
+
+  try {
+    const res = await fetch(getAircraftAllocationUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ StudentID: studentID })
+    });
+
+    if(!res.ok) throw new Error('Allocation fetch failed');
+    const data = await res.json();
+
+    // expected response:
+    // { "found": true, "location": "...", "aircraftRegistration": "...", "aircraftType": "..." }
+    if(data && data.found) {
+      document.getElementById('last-air-location').textContent = data.location ? data.location : '-';
+      document.getElementById('last-air-reg').textContent = data.aircraftRegistration ? data.aircraftRegistration : '-';
+      document.getElementById('last-air-type').textContent = data.aircraftType ? data.aircraftType : '-';
+    }
+  } catch(e) { }
 }
 
 // === Password show/hide toggle ===
 document.getElementById('show-password').addEventListener('change', e => {
   const pass = document.getElementById('reg-password');
   const conf = document.getElementById('reg-password-confirm');
-  if(e.target.checked) {
-    pass.type = 'text';
-    conf.type = 'text';
-  } else {
-    pass.type = 'password';
-    conf.type = 'password';
-  }
+  if(e.target.checked) { pass.type = 'text'; conf.type = 'text'; }
+  else { pass.type = 'password'; conf.type = 'password'; }
 });
 
 function validateRegistrationInputs() {
@@ -518,10 +522,7 @@ document.getElementById('btn-send-otp').addEventListener('click', async () => {
 document.getElementById('btn-verify-otp').addEventListener('click', async () => {
   clearMessages();
   const otp = document.getElementById('otp-input').value.trim();
-  if(!otp) {
-    showMessage('otp-message', 'Please enter the OTP.');
-    return;
-  }
+  if(!otp) { showMessage('otp-message', 'Please enter the OTP.'); return; }
 
   const tempDataStr = sessionStorage.getItem('regTempData');
   if(!tempDataStr) {
@@ -540,7 +541,6 @@ document.getElementById('btn-verify-otp').addEventListener('click', async () => 
     if(!verifyResponse.ok) throw new Error('OTP verification failed');
 
     const verifyResult = await verifyResponse.json();
-
     if(!verifyResult.valid) {
       showMessage('otp-message', verifyResult.message || 'OTP did not match or expired.');
       return;
@@ -610,10 +610,7 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
 
-  if(!email || !password) {
-    showMessage('login-message', 'Please enter email and password.');
-    return;
-  }
+  if(!email || !password) { showMessage('login-message', 'Please enter email and password.'); return; }
 
   try {
     const loginResponse = await fetch(checkLoginCredentialsUrl, {
@@ -635,7 +632,6 @@ document.getElementById('btn-login').addEventListener('click', async () => {
     sessionStorage.setItem('loggedInStudentID', loginResult.studentID || '');
 
     showSection('dashboard-section');
-
   } catch (err) {
     showMessage('login-message', 'Error: ' + err.message);
   }
@@ -656,15 +652,18 @@ document.getElementById('btn-dashboard-attendance').addEventListener('click', as
   verifyLocationGate_AttendanceOnly();
 });
 
-// ✅ Aircraft Allocation button now opens the form
-document.getElementById('btn-dashboard-aircraft').addEventListener('click', () => {
-  // clear fields each time
-  document.getElementById('aircraft-location').value = '';
-  document.getElementById('aircraft-registration').value = '';
-  document.getElementById('aircraft-type').value = '';
-  document.getElementById('check-manager').value = '';
-  document.getElementById('engineer').value = '';
+document.getElementById('btn-dashboard-aircraft').addEventListener('click', async () => {
   showSection('aircraft-section');
+
+  // reset inputs
+  document.getElementById('air-location').value = '';
+  document.getElementById('air-reg').value = '';
+  document.getElementById('air-type').value = '';
+  document.getElementById('air-checkmanager').value = '';
+  document.getElementById('air-engineer').value = '';
+
+  // ✅ load "Last Allocation" (new)
+  await loadAircraftAllocationFromSharePoint();
 });
 
 document.getElementById('btn-dashboard-taskcount').addEventListener('click', async () => {
@@ -695,63 +694,7 @@ document.getElementById('btn-back-from-aircraft').addEventListener('click', () =
   showSection('dashboard-section');
 });
 
-// === SUBMIT AIRCRAFT ALLOCATION ===
-document.getElementById('btn-submit-aircraft').addEventListener('click', async () => {
-  clearMessages();
-
-  const studentID = sessionStorage.getItem('loggedInStudentID');
-  if(!studentID) {
-    showMessage('aircraft-message', 'You are not logged in.');
-    showSection('login-section');
-    return;
-  }
-
-  const AircraftLocation = document.getElementById('aircraft-location').value;
-  const AircraftRegistration = document.getElementById('aircraft-registration').value.trim();
-  const AircraftType = document.getElementById('aircraft-type').value;
-  const CheckManager = document.getElementById('check-manager').value.trim();
-  const Engineer = document.getElementById('engineer').value.trim();
-
-  if(!AircraftLocation || !AircraftType) {
-    showMessage('aircraft-message', 'Please select Location and Aircraft Type.');
-    return;
-  }
-
-  try {
-    const res = await fetch(updateAircraftAllocationUrl, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        StudentID: studentID,
-        AircraftLocation,
-        AircraftRegistration,
-        AircraftType,
-        CheckManager,
-        Engineer
-      })
-    });
-
-    if(!res.ok) throw new Error('Failed to update aircraft allocation');
-
-    let data = null;
-    const raw = await res.text();
-    if(raw) {
-      try { data = JSON.parse(raw); } catch(e) { data = null; }
-    }
-
-    if(data && data.success === false) {
-      showMessage('aircraft-message', data.message || 'Update failed.');
-      return;
-    }
-
-    showMessage('aircraft-message', '✅ Aircraft allocation updated successfully.', false);
-
-  } catch(err) {
-    showMessage('aircraft-message', 'Error: ' + err.message);
-  }
-});
-
-// === NEW: SUBMIT TASK COUNT ===
+// === SUBMIT TASK COUNT ===
 document.getElementById('btn-submit-taskcount').addEventListener('click', async () => {
   clearMessages();
 
@@ -765,10 +708,7 @@ document.getElementById('btn-submit-taskcount').addEventListener('click', async 
   const rawVal = document.getElementById('taskcount-input').value;
   const taskCount = Number(rawVal);
 
-  if(!rawVal || isNaN(taskCount)) {
-    showMessage('taskcount-message', 'Please enter a valid task count.');
-    return;
-  }
+  if(!rawVal || isNaN(taskCount)) { showMessage('taskcount-message', 'Please enter a valid task count.'); return; }
 
   const submittedOn = new Date().toISOString();
 
@@ -776,11 +716,7 @@ document.getElementById('btn-submit-taskcount').addEventListener('click', async 
     const res = await fetch(updateTaskCountUrl, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        StudentID: studentID,
-        TaskCount: taskCount,
-        SubmittedOnDate: submittedOn
-      })
+      body: JSON.stringify({ StudentID: studentID, TaskCount: taskCount, SubmittedOnDate: submittedOn })
     });
 
     if(!res.ok) throw new Error('Failed to update task count');
@@ -798,16 +734,60 @@ document.getElementById('btn-submit-taskcount').addEventListener('click', async 
   }
 });
 
+// === SUBMIT AIRCRAFT ALLOCATION ===
+document.getElementById('btn-submit-aircraft').addEventListener('click', async () => {
+  clearMessages();
+
+  const studentID = sessionStorage.getItem('loggedInStudentID');
+  if(!studentID) {
+    showMessage('aircraft-message', 'You are not logged in.');
+    showSection('login-section');
+    return;
+  }
+
+  const loc = document.getElementById('air-location').value.trim();
+  const reg = document.getElementById('air-reg').value.trim();
+  const type = document.getElementById('air-type').value.trim();
+  const cm = document.getElementById('air-checkmanager').value.trim();
+  const eng = document.getElementById('air-engineer').value.trim();
+
+  if(!loc || !reg || !type) {
+    showMessage('aircraft-message', 'Please fill Location, Aircraft Registration, and Aircraft Type.');
+    return;
+  }
+
+  try {
+    const res = await fetch(updateAircraftAllocationUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        StudentID: studentID,
+        AircraftLocation: loc,
+        AircraftRegistration: reg,
+        AircraftType: type,
+        CheckManager: cm,
+        Engineer: eng
+      })
+    });
+
+    if(!res.ok) throw new Error('Failed to update allocation');
+    showMessage('aircraft-message', '✅ Allocation updated successfully.', false);
+
+    // ✅ refresh Last Allocation immediately
+    await loadAircraftAllocationFromSharePoint();
+
+  } catch(err) {
+    showMessage('aircraft-message', 'Error: ' + err.message);
+  }
+});
+
 // === Load Attendance Details ===
 function loadAttendanceDetails() {
   const email = sessionStorage.getItem('loggedInEmail');
   const name = sessionStorage.getItem('loggedInName');
   const studentID = sessionStorage.getItem('loggedInStudentID');
 
-  if(!email) {
-    showSection('login-section');
-    return;
-  }
+  if(!email) { showSection('login-section'); return; }
 
   document.getElementById('attendee-name').textContent = name || '';
   document.getElementById('attendee-id').textContent = studentID || '';
@@ -837,11 +817,7 @@ document.getElementById('btn-mark-attendance').addEventListener('click', async (
   const studentID = sessionStorage.getItem('loggedInStudentID');
   const name = sessionStorage.getItem('loggedInName');
 
-  if(!email) {
-    showMessage('attendance-message', 'You are not logged in.');
-    showSection('login-section');
-    return;
-  }
+  if(!email) { showMessage('attendance-message', 'You are not logged in.'); showSection('login-section'); return; }
 
   try {
     const chk = await fetch(checkAttendanceTodayUrl, {
@@ -857,7 +833,7 @@ document.getElementById('btn-mark-attendance').addEventListener('click', async (
         return;
       }
     }
-  } catch(e) {}
+  } catch(e) { }
 
   try {
     const attendanceResponse = await fetch(attendanceFlowUrl, {
@@ -875,9 +851,7 @@ document.getElementById('btn-mark-attendance').addEventListener('click', async (
 
     let attendanceResult = null;
     const raw = await attendanceResponse.text();
-    if (raw) {
-      try { attendanceResult = JSON.parse(raw); } catch(e) { attendanceResult = null; }
-    }
+    if (raw) { try { attendanceResult = JSON.parse(raw); } catch(e) { attendanceResult = null; } }
 
     if(attendanceResult && attendanceResult.success === false) {
       showMessage('attendance-message', attendanceResult.message || 'Failed to mark attendance.');
@@ -898,11 +872,8 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 
 // === On page load ===
 window.onload = () => {
-  if(sessionStorage.getItem('loggedInEmail')) {
-    showSection('dashboard-section');
-  } else {
-    showSection('login-section');
-  }
+  if(sessionStorage.getItem('loggedInEmail')) showSection('dashboard-section');
+  else showSection('login-section');
 };
 </script>
 
